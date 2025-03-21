@@ -23,53 +23,136 @@ namespace OuttputShiftCSV
         public void ReadShiftExcel()
         {
             const int START_ROW_NUM = 4;
-            const int START_COLOUMN_NUM = 4;
-            const int WORKER_CODE_COLUMN_NUM = 2;
 
             //読み取り対象のエクセルオブジェクト作成
             IXLWorksheet workSheet = workBook.Worksheet("先生");
-            //保育士の行終了位置特定
-            int endRowNum = GetEndNurseryTeacherShiftStartRowNum();
-            for (int i = START_ROW_NUM; i < endRowNum; i = i + 2)
+            //保育士
+            int nurseryTeacherEndRowNum = GetNurseryTeacherShiftEndRowNum(workSheet, START_ROW_NUM);
+            if (nurseryTeacherEndRowNum == 0)
             {
-                //先生の名前の出力
-                Console.WriteLine(workSheet.Cell(i, 2).Value.ToString());
-                // 人ごとにID指定があるかを確認。なければ処理対象から飛ばす
-                if (workSheet.Cell(i + 1, WORKER_CODE_COLUMN_NUM).Value.ToString() == "")
+                throw new Exception("B列に保育士欄に「計」の項目が存在しません。");
+            }
+            for (int i = START_ROW_NUM; i < nurseryTeacherEndRowNum; i = i + 2)
+            {
+                CreateShiftInfo(workSheet, i);
+            }
+
+            //調理師
+            int cookStartRowNum = nurseryTeacherEndRowNum + 1;
+            int cookEndRowNum = GetCookShiftEndRowNum(workSheet, cookStartRowNum);
+            if (nurseryTeacherEndRowNum == 0)
+            {
+                throw new Exception("A列の調理師欄の記載が想定と異なります。");
+            }
+            for (int i = cookStartRowNum; i < cookEndRowNum; i = i + 2)
+            {
+                CreateShiftInfo(workSheet, i);
+            }
+
+        }
+
+        private void CreateShiftInfo(IXLWorksheet sheet,int ronwNum)
+        {
+            const int START_COLOUMN_NUM = 4;
+            const int WORKER_CODE_COLUMN_NUM = 2;
+
+            //先生の名前の出力
+            Console.WriteLine(sheet.Cell(ronwNum, 2).Value.ToString());
+            // 人ごとにID指定があるかを確認。なければ処理対象から飛ばす
+            string employeeId = sheet.Cell(ronwNum + 1, WORKER_CODE_COLUMN_NUM).Value.ToString();
+            if (employeeId == "")
+            {
+                return;
+            }
+            else
+            {
+                int id;
+                if (!int.TryParse(employeeId, out id))
+                {
+                    //ID自体は数値想定なので、数値変換できない値が記載されてる場合飛ばす
+                    return;
+                }
+            }
+
+            //各日程の勤務予定の確認
+            int endDateColoumnNum = GetEndDateColoumnNum(sheet);
+            for (int k = START_COLOUMN_NUM; k < endDateColoumnNum; k++)
+            {
+                string startDateStr = sheet.Cell(ronwNum, k).Value.ToString();
+                if (startDateStr == "")
                 {
                     continue;
                 }
+                string endDateStr = sheet.Cell(ronwNum + 1, k).Value.ToString();
 
-                //各日程の勤務予定の確認
-                int endDateColoumnNum = GetEndDateColoumnNum();
-                for (int k = START_COLOUMN_NUM; k < endDateColoumnNum; k++)
-                {
-                    string startDateStr = workSheet.Cell(i, k).Value.ToString();
-                    if (startDateStr == "")
-                    {
-                        continue;
-                    }
-                    string endDateStr = workSheet.Cell(i + 1, k).Value.ToString();
-
-                    string shiftStr = "開始:" + startDateStr + " " + "終了：" + endDateStr;
-                    Console.WriteLine(shiftStr);
-
-                }
+                string shiftStr = "開始:" + startDateStr + " " + "終了：" + endDateStr;
+                Console.WriteLine(shiftStr);
 
             }
-
-            //調理師の行開始位置特定
+        }
+        /// <summary>
+        /// 保育士欄の終了行の行数を返却する
+        /// </summary>
+        /// <param name="sheet">対象のシート</param>
+        /// <param name="startRowNum">開始行</param>
+        /// <returns></returns>
+        /// <remarks>前提：B列の引数の開始行以降で200行以前に「計」が存在する</remarks>
+        /// 
+        private int GetNurseryTeacherShiftEndRowNum(IXLWorksheet sheet,int startRowNum)
+        {
+            int result = 0;
+            for(int i = startRowNum; i < 200; i++)
+            {
+                if(sheet.Cell(i, 2).Value.ToString() == "計")
+                {
+                    result = i;
+                    break;
+                }
+            }
+            return result;
         }
 
-
-        private int GetEndNurseryTeacherShiftStartRowNum()
+        /// <summary>
+        /// 調理師行の終了行の行数を返却する
+        /// </summary>
+        /// <param name="sheet"></param>
+        /// <param name="startRowNum"></param>
+        /// <returns>前提：A列のセル結合が調理師が存在する行までセル結合されていること</returns>
+        private int GetCookShiftEndRowNum(IXLWorksheet sheet, int startRowNum)
         {
-            return 35;
+            int result = 0;
+            IXLCell cookTitleCell= sheet.Cell(startRowNum, 1);
+            if(cookTitleCell.IsMerged())
+            {
+                result = cookTitleCell.MergedRange().LastRow().RowNumber();
+            }
+
+            return result;
         }
 
-        private int GetEndDateColoumnNum()
+        /// <summary>
+        /// 日付の終了列数の取得
+        /// </summary>
+        /// <param name="sheet"></param>
+        /// <returns></returns>
+        private int GetEndDateColoumnNum(IXLWorksheet sheet)
         {
-            return 34;
+            const int START_COLUMN_NUM = 4;
+            const int DATE_HEADER_ROW_NUM = 2;
+
+            int result=0;
+            for (int i = START_COLUMN_NUM; i < 200; i++)
+            {
+                string dateStr = sheet.Cell(DATE_HEADER_ROW_NUM, i).Value.ToString();
+
+                DateTime date;
+                if (!DateTime.TryParse(dateStr, out date))
+                {
+                    result = i-1;
+                    break;
+                }
+            }
+            return result;
         }
 
     }
