@@ -12,29 +12,36 @@ namespace OuttputShiftCSV
     internal class ShiftPattern
     {
         private string patternCode;
-        private DateTime startDate;
-        private DateTime endDate;
+        private DateTime workDate;
+        private DateTime startDateTime;
+        private DateTime endDateTime;
 
         public ShiftPattern()
         {
             throw new NotImplementedException();
         }
 
-        public ShiftPattern(string patternCode, string startDateStr, string endDateStr)
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="patternCode">シフトパターンコード</param>
+        /// <param name="workDate">作業日(指定が無い場合、「0001/01/01/01」</param>
+        /// <param name="startTimeStr">作業開始時刻文字列</param>
+        /// <param name="endTimeStr">作業終了時刻文字列</param>
+        public ShiftPattern(string patternCode, string startTimeStr, string endTimeStr, DateTime workDate= default(DateTime))
         {
-            //BASE_DATEの日時にはこだわりはない。明示的な固定値指定にのみ意図がある。
-            const string BASE_DATE ="2025/03/23 ";
-
             this.patternCode = patternCode;
-            this.startDate = DateTime.Parse(BASE_DATE + zenToHanComvert(startDateStr));
-            this.endDate = DateTime.Parse(BASE_DATE + zenToHanComvert(endDateStr));
+            this.workDate = workDate;
+            this.startDateTime = DateTime.Parse(workDate.ToString("yyyy/MM/dd ") + zenToHanComvert(startTimeStr));
+            this.endDateTime = DateTime.Parse(workDate.ToString("yyyy/MM/dd ") + zenToHanComvert(endTimeStr));
         }
 
         public override string ToString()
         {
-            return "パターンコード: " + this.patternCode + 
-                " " + "開始:" +startDate.ToString("HH:mm") +
-                " " + "終了:" + endDate.ToString("HH:mm");
+            return "勤務日(" + workDate.ToString("yyyy/MM/dd") +")" +
+                " " + "パターンコード: " + this.patternCode + 
+                " " + "開始:" +startDateTime.ToString("HH:mm") +
+                " " + "終了:" + endDateTime.ToString("HH:mm");
         }
 
         private string zenToHanComvert(string dateTimeStr)
