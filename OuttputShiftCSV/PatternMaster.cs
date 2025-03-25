@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace OuttputShiftCSV
     internal class PatternMaster
     {
         private XLWorkbook workBook;
+        private List<ShiftPattern>shiftPatternList;
 
         public PatternMaster()
         {
@@ -19,6 +21,7 @@ namespace OuttputShiftCSV
         public PatternMaster(string filePath)
         {
             workBook = new XLWorkbook(filePath);
+            shiftPatternList = new List<ShiftPattern>();
         }
 
         public void ReadMasterExcel()
@@ -45,9 +48,34 @@ namespace OuttputShiftCSV
                 string startTime = startBaseTime.Substring(2,2) + ":" + startBaseTime.Substring(7, 2);
                 string endBaseTime = workSheet.Cell(i, END_TIME_COLOUMN_NUM).Value.ToString();
                 string endTime = endBaseTime.Substring(2, 2) + ":" + endBaseTime.Substring(7, 2);
-                ShiftPattern shiftPattern = new ShiftPattern(patternCode, startTime, endTime);
+                ShiftPattern shiftPattern = new ShiftPattern(patternCode, new Shift(startTime,endTime));
+                AddShiftPattern(shiftPattern);
                 Console.WriteLine(shiftPattern.ToString());
             }
+        }
+
+        private void AddShiftPattern(ShiftPattern pattern)
+        {
+            //実際に使用されているパターンは、パターンコード違いで開始時間、終了時間が同じデータが存在するが、
+            //開始時間、終了時間の組み合わせが同じものは登録しない
+            ShiftPattern patterInList = shiftPatternList.Find(p => p.StartDateTime.ToString("HH:mm") == pattern.StartDateTime.ToString("HH:mm") &&
+                                                            p.EndDateTime.ToString("HH:mm") == pattern.EndDateTime.ToString("HH:mm"));
+            if(patterInList == null)
+            {
+                shiftPatternList.Add(pattern);
+            }
+        }
+
+        public string GetShiftPatternCode(Shift shift)
+        {
+            string result = "";
+            ShiftPattern patterInList = shiftPatternList.Find(p => p.StartDateTime.ToString("HH:mm") == shift.StartDateTime.ToString("HH:mm") &&
+                                                p.EndDateTime.ToString("HH:mm") == shift.EndDateTime.ToString("HH:mm"));
+            if (patterInList != null)
+            {
+                result = patterInList.PatternCode;
+            }
+            return result;
         }
     }
 }

@@ -10,6 +10,7 @@ namespace OuttputShiftCSV
     {
         private int employeeId;
         private string name;
+        private List<Shift> shiftList;
 
         public Employee()
         {
@@ -20,6 +21,17 @@ namespace OuttputShiftCSV
         {
             this.employeeId = employeeId;
             this.name = name;
+            this.shiftList = new List<Shift>();
+        }
+
+        public List<Shift> GetShiftList()
+        {
+            return new List<Shift>(this.shiftList);
+        }
+
+        public void AddShift(Shift shift)
+        {
+            this.shiftList.Add(shift);
         }
     }
 }
