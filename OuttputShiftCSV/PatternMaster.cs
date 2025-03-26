@@ -16,7 +16,7 @@ namespace OuttputShiftCSV
 
         public PatternMaster()
         {
-            throw new Exception();
+            throw new NotImplementedException();
         }
         public PatternMaster(string filePath)
         {

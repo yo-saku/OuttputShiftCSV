@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,14 +11,17 @@ namespace OuttputShiftCSV
     internal class ShiftExcel
     {
         private XLWorkbook workBook;
+        private PatternMaster patternMaster;
 
         public ShiftExcel()
         {
-            throw new Exception();
+            throw new NotImplementedException();
         }
-        public ShiftExcel(string filePath) 
+
+        public ShiftExcel(string filePath, PatternMaster patternMaster) 
         {
-            workBook = new XLWorkbook(filePath);
+            this.workBook = new XLWorkbook(filePath);
+            this.patternMaster = patternMaster;
         }
 
         public void ReadShiftExcel()
@@ -26,6 +30,10 @@ namespace OuttputShiftCSV
 
             //読み取り対象のエクセルオブジェクト作成
             IXLWorksheet workSheet = workBook.Worksheet("先生");
+
+            //書き込み先CSVファイル名の作成
+            string csvFileFullPath = ".\\" + DateTime.Now.ToString("yyyyMMddHHmmss") + "_shift.csv";
+
             //保育士
             int nurseryTeacherEndRowNum = GetNurseryTeacherShiftEndRowNum(workSheet, START_ROW_NUM);
             if (nurseryTeacherEndRowNum == 0)
@@ -34,7 +42,7 @@ namespace OuttputShiftCSV
             }
             for (int i = START_ROW_NUM; i < nurseryTeacherEndRowNum; i = i + 2)
             {
-                CreateShiftInfo(workSheet, i);
+                CreateShiftInfo(workSheet, i, csvFileFullPath);
             }
 
             //調理師
@@ -46,15 +54,21 @@ namespace OuttputShiftCSV
             }
             for (int i = cookStartRowNum; i < cookEndRowNum; i = i + 2)
             {
-                CreateShiftInfo(workSheet, i);
+                CreateShiftInfo(workSheet, i, csvFileFullPath);
             }
+
+            //TODO 書き込み処理は分離したい
+            //最終行の改行のみ出力
+            WriteCSV(csvFileFullPath, "");
 
         }
 
-        private void CreateShiftInfo(IXLWorksheet sheet,int ronwNum)
+        private void CreateShiftInfo(IXLWorksheet sheet,int ronwNum,string fileTullPath)
         {
             const int START_COLOUMN_NUM = 4;
             const int WORKER_CODE_COLUMN_NUM = 2;
+
+            const int DATE_HEADER_ROW_NUM = 2;
 
             //先生の名前の出力
             Console.WriteLine(sheet.Cell(ronwNum, 2).Value.ToString());
@@ -78,16 +92,29 @@ namespace OuttputShiftCSV
             int endDateColoumnNum = GetEndDateColoumnNum(sheet);
             for (int k = START_COLOUMN_NUM; k < endDateColoumnNum; k++)
             {
+                //開始、終了時刻の取得
                 string startDateStr = sheet.Cell(ronwNum, k).Value.ToString();
                 if (startDateStr == "")
                 {
                     continue;
                 }
                 string endDateStr = sheet.Cell(ronwNum + 1, k).Value.ToString();
+                if (endDateStr == "")
+                {
+                    continue;
+                }
 
-                string shiftStr = "開始:" + startDateStr + " " + "終了：" + endDateStr;
+                //勤務予定日の情報取得
+                string workDateStr = sheet.Cell(DATE_HEADER_ROW_NUM, k).Value.ToString();
+                DateTime workDate = DateTime.Parse(workDateStr);
+
+                //パターンコードの取得
+                string patternCode = this.patternMaster.GetShiftPatternCode(new Shift(startDateStr, endDateStr, workDate));
+
+                string shiftStr = workDate.ToString("yyyyMMdd") + "," + employeeId + "," + patternCode;
                 Console.WriteLine(shiftStr);
 
+                WriteCSV(fileTullPath, shiftStr);
             }
         }
         /// <summary>
@@ -153,6 +180,12 @@ namespace OuttputShiftCSV
                 }
             }
             return result;
+        }
+
+        private void WriteCSV(string fileFullPath,string text)
+        {
+            File.AppendAllText(@fileFullPath, text + Environment.NewLine);
+
         }
 
     }
