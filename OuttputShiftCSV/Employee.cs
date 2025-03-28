@@ -8,28 +8,38 @@ namespace OuttputShiftCSV
 {
     internal class Employee
     {
-        private int employeeId;
+        private string employeeId;
         private string name;
-        private List<Shift> shiftList;
+        private List<ShiftPattern> shiftList;
 
         public Employee()
         {
             throw new NotImplementedException();
         }
 
-        public Employee(int employeeId,string name)
+        public Employee(string employeeId,string name)
         {
             this.employeeId = employeeId;
             this.name = name;
-            this.shiftList = new List<Shift>();
+            this.shiftList = new List<ShiftPattern>();
         }
 
-        public List<Shift> GetShiftList()
+        public string GetShiftCsvData()
         {
-            return new List<Shift>(this.shiftList);
+            string result = "";
+            foreach(ShiftPattern shiftPattern in shiftList)
+            {
+                if(result != "")
+                {
+                    result = result + Environment.NewLine;
+                }
+                result = result + shiftPattern.StartDateTime.ToString("yyyyMMdd") + "," + this.employeeId + "," + shiftPattern.PatternCode;
+            }
+
+            return result;
         }
 
-        public void AddShift(Shift shift)
+        public void AddShift(ShiftPattern shift)
         {
             this.shiftList.Add(shift);
         }

@@ -3,6 +3,7 @@ using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,16 +12,17 @@ namespace OuttputShiftCSV
 {
     internal class PatternMaster
     {
+        const string FILE_FULL_PATH = "KOTスケジュールパターンリスト.xlsx";
         private XLWorkbook workBook;
         private List<ShiftPattern>shiftPatternList;
 
         public PatternMaster()
         {
-            throw new NotImplementedException();
-        }
-        public PatternMaster(string filePath)
-        {
-            workBook = new XLWorkbook(filePath);
+            if(!File.Exists(FILE_FULL_PATH))
+            {
+                throw new Exception("「KOTスケジュールパターンリスト.xlsx」がありません。");
+            }
+            workBook = new XLWorkbook(FILE_FULL_PATH);
             shiftPatternList = new List<ShiftPattern>();
         }
 

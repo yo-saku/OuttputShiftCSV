@@ -15,7 +15,7 @@ namespace OuttputShiftCSV
             try
             {
                 //パターンコードの設定ファイルの読み取り
-                PatternMaster patternMaster = new PatternMaster(@Console.ReadLine());
+                PatternMaster patternMaster = new PatternMaster();
                 patternMaster.ReadMasterExcel();
                 //シフトエクセルの読み取り
                 //TODO 最終的にはファイルをドラッグアンドドロップに変更予定
@@ -26,6 +26,9 @@ namespace OuttputShiftCSV
                 ShiftExcel shiftExcel = new ShiftExcel(@Console.ReadLine(), patternMaster);
                 shiftExcel.ReadShiftExcel();
 
+                //CSVファイルの作成
+                shiftExcel.CreateCsvFile();
+
             }
             catch (Exception ex)
             {
@@ -33,7 +36,7 @@ namespace OuttputShiftCSV
             }
             finally
             {
-                string name = Console.ReadLine();
+                Console.ReadLine();
             }
 
         }
