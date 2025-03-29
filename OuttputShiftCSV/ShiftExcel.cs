@@ -10,6 +10,9 @@ namespace OuttputShiftCSV
 {
     internal class ShiftExcel
     {
+
+        const int START_COLUMN_NUM = 4;
+
         private XLWorkbook workBook;
         private PatternMaster patternMaster;
         private List<Employee> employeeList;
@@ -26,6 +29,10 @@ namespace OuttputShiftCSV
             this.employeeList = new List<Employee>();
         }
 
+        /// <summary>
+        /// シフト情報記載のエクセル読み込み
+        /// </summary>
+        /// <exception cref="Exception"></exception>
         public void ReadShiftExcel()
         {
             const int START_ROW_NUM = 4;
@@ -69,7 +76,7 @@ namespace OuttputShiftCSV
         /// <summary>
         /// CSVファイルへの書き込み
         /// </summary>
-        /// <param name="fileFullPath"></param>
+        /// <param name="fileFullPath">ファイルフルパス</param>
         public void CreateCsvFile()
         {
             //ファイル名(場所はexeの実行場所)
@@ -83,9 +90,14 @@ namespace OuttputShiftCSV
             WriteCSV(fileFullPath, "");
         }
 
+        /// <summary>
+        /// シフト情報の作成
+        /// </summary>
+        /// <param name="sheet">エクセルシート</param>
+        /// <param name="ronwNum">行数</param>
+        /// <returns></returns>
         private Employee CreateShiftInfo(IXLWorksheet sheet,int ronwNum)
         {
-            const int START_COLOUMN_NUM = 4;
             const int WORKER_CODE_COLUMN_NUM = 2;
 
             const int DATE_HEADER_ROW_NUM = 2;
@@ -114,7 +126,7 @@ namespace OuttputShiftCSV
 
             //各日程の勤務予定の確認
             int endDateColoumnNum = GetEndDateColoumnNum(sheet);
-            for (int k = START_COLOUMN_NUM; k < endDateColoumnNum; k++)
+            for (int k = START_COLUMN_NUM; k < endDateColoumnNum; k++)
             {
                 //開始、終了時刻の取得
                 string startDateStr = sheet.Cell(ronwNum, k).Value.ToString();
@@ -145,6 +157,7 @@ namespace OuttputShiftCSV
 
             return employee;
         }
+
         /// <summary>
         /// 保育士欄の終了行の行数を返却する
         /// </summary>
@@ -192,7 +205,6 @@ namespace OuttputShiftCSV
         /// <returns></returns>
         private int GetEndDateColoumnNum(IXLWorksheet sheet)
         {
-            const int START_COLUMN_NUM = 4;
             const int DATE_HEADER_ROW_NUM = 2;
 
             int result=0;
@@ -210,7 +222,11 @@ namespace OuttputShiftCSV
             return result;
         }
 
-
+        /// <summary>
+        /// CSVファイルへの書き込み
+        /// </summary>
+        /// <param name="fileFullPath">ファイルフルパス</param>
+        /// <param name="text">書き込み内容</param>
         private void WriteCSV(string fileFullPath,string text)
         {
             File.AppendAllText(@fileFullPath, text + Environment.NewLine);

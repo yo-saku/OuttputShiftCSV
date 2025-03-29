@@ -35,10 +35,8 @@ namespace OuttputShiftCSV
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="patternCode">シフトパターンコード</param>
-        /// <param name="workDate">作業日(指定が無い場合、「0001/01/01/01」</param>
-        /// <param name="startTimeStr">作業開始時刻文字列</param>
-        /// <param name="endTimeStr">作業終了時刻文字列</param>
+        /// <param name="patternCode">パターンコード</param>
+        /// <param name="shift">シフト情報</param>
         public ShiftPattern(string patternCode, Shift shift)
         {
             this.patternCode = patternCode;

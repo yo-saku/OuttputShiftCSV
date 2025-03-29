@@ -30,6 +30,11 @@ namespace OuttputShiftCSV
             this.endDateTime = DateTime.Parse(workDate.ToString("yyyy/MM/dd ") + ZenToHanComvert(endTimeStr));
         }
 
+        /// <summary>
+        /// 全角を半角に変換
+        /// </summary>
+        /// <param name="dateTimeStr">時刻文字列</param>
+        /// <returns></returns>
         private string ZenToHanComvert(string dateTimeStr)
         {
             string result;

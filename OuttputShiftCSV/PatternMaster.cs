@@ -26,6 +26,9 @@ namespace OuttputShiftCSV
             shiftPatternList = new List<ShiftPattern>();
         }
 
+        /// <summary>
+        /// シフトパターンの記載エクセルを読み取る
+        /// </summary>
         public void ReadMasterExcel()
         {
             const int START_ROW_NUM = 13;
@@ -56,6 +59,11 @@ namespace OuttputShiftCSV
             }
         }
 
+        /// <summary>
+        /// シフトパターンの追加
+        /// </summary>
+        /// <param name="pattern"></param>
+        /// <remarks>TODO ここの挙動は変更可能性有</remarks>
         private void AddShiftPattern(ShiftPattern pattern)
         {
             //実際に使用されているパターンは、パターンコード違いで開始時間、終了時間が同じデータが存在するが、
@@ -68,6 +76,11 @@ namespace OuttputShiftCSV
             }
         }
 
+        /// <summary>
+        /// シフト情報からパターンコードを取得する
+        /// </summary>
+        /// <param name="shift">シフト情報</param>
+        /// <returns></returns>
         public string GetShiftPatternCode(Shift shift)
         {
             string result = "";

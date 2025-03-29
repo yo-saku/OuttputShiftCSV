@@ -24,6 +24,10 @@ namespace OuttputShiftCSV
             this.shiftList = new List<ShiftPattern>();
         }
 
+        /// <summary>
+        /// シフト情報をCSV書き込み用の文字列にする
+        /// </summary>
+        /// <returns></returns>
         public string GetShiftCsvData()
         {
             string result = "";
@@ -39,6 +43,10 @@ namespace OuttputShiftCSV
             return result;
         }
 
+        /// <summary>
+        /// シフトパターンを追加する
+        /// </summary>
+        /// <param name="shift"></param>
         public void AddShift(ShiftPattern shift)
         {
             this.shiftList.Add(shift);
