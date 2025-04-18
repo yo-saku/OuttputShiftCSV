@@ -79,7 +79,7 @@ namespace OuttputShiftCSV
         /// <param name="fileFullPath">ファイルフルパス</param>
         public void CreateCsvFile()
         {
-            //ファイル名(場所はexeの実行場所)
+            //ファイル名(出力場所はドラッグアンドドロップしたファイルと同じ場所)
             string fileFullPath = DateTime.Now.ToString("yyyyMMddHHmmss") + "_shift.csv";
 
             foreach (Employee employee in this.employeeList)
@@ -98,15 +98,13 @@ namespace OuttputShiftCSV
         /// <returns></returns>
         private Employee CreateShiftInfo(IXLWorksheet sheet,int ronwNum)
         {
-            const int WORKER_CODE_COLUMN_NUM = 2;
+            const int EMPLOYEE_ID_COLUMN_NUM = 2;
 
             const int DATE_HEADER_ROW_NUM = 2;
 
-            //先生の名前の出力
-            string name = sheet.Cell(ronwNum, 2).Value.ToString();
-            Console.WriteLine(sheet.Cell(ronwNum, 2).Value.ToString());
+            //記載対象の判断
             // 人ごとにID指定があるかを確認。なければ処理対象から飛ばす
-            string employeeId = sheet.Cell(ronwNum + 1, WORKER_CODE_COLUMN_NUM).Value.ToString();
+            string employeeId = sheet.Cell(ronwNum + 1, EMPLOYEE_ID_COLUMN_NUM).Value.ToString();
             if (employeeId == "")
             {
                 return null;
@@ -122,6 +120,8 @@ namespace OuttputShiftCSV
             }
 
             //勤務者
+            string name = sheet.Cell(ronwNum, EMPLOYEE_ID_COLUMN_NUM).Value.ToString();
+            //Console.WriteLine(sheet.Cell(ronwNum, 2).Value.ToString());
             Employee employee = new Employee(employeeId, name);
 
             //各日程の勤務予定の確認
@@ -150,7 +150,7 @@ namespace OuttputShiftCSV
                 ShiftPattern shiftPattern = new ShiftPattern(patternCode, shift);
 
                 string shiftStr = workDate.ToString("yyyyMMdd") + "," + employeeId + "," + patternCode;
-                Console.WriteLine(shiftStr);
+                //Console.WriteLine(shiftStr);
 
                 employee.AddShift(shiftPattern);
             }

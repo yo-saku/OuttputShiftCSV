@@ -12,17 +12,18 @@ namespace OuttputShiftCSV
 {
     internal class PatternMaster
     {
-        const string FILE_FULL_PATH = "KOTスケジュールパターンリスト.xlsx";
+        const string FILE_NAME = "KOTスケジュールパターンリスト.xlsx";
         private XLWorkbook workBook;
         private List<ShiftPattern>shiftPatternList;
 
         public PatternMaster()
         {
-            if(!File.Exists(FILE_FULL_PATH))
+            string masterFIlePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FILE_NAME);
+            if (!File.Exists(masterFIlePath))
             {
-                throw new Exception("「KOTスケジュールパターンリスト.xlsx」がありません。");
+                throw new Exception(FILE_NAME + "がありません。");
             }
-            workBook = new XLWorkbook(FILE_FULL_PATH);
+            workBook = new XLWorkbook(masterFIlePath);
             shiftPatternList = new List<ShiftPattern>();
         }
 
@@ -55,7 +56,7 @@ namespace OuttputShiftCSV
                 string endTime = endBaseTime.Substring(2, 2) + ":" + endBaseTime.Substring(7, 2);
                 ShiftPattern shiftPattern = new ShiftPattern(patternCode, new Shift(startTime,endTime));
                 AddShiftPattern(shiftPattern);
-                Console.WriteLine(shiftPattern.ToString());
+                //Console.WriteLine(shiftPattern.ToString());
             }
         }
 

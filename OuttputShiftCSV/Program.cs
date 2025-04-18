@@ -14,20 +14,27 @@ namespace OuttputShiftCSV
         {
             try
             {
+
+                //ドラッグアンドドロップで実行されているときのみ処理を実行
+                if (args.Length == 0)
+                {
+                    return;
+                }
+                Console.WriteLine("処理を開始します。");
+                Console.WriteLine(@args[0]);
+
                 //パターンコードの設定ファイルの読み取り
                 PatternMaster patternMaster = new PatternMaster();
                 patternMaster.ReadMasterExcel();
                 //シフトエクセルの読み取り
-                //TODO 最終的にはファイルをドラッグアンドドロップに変更予定
-                //for (int i = 0; i < args.Length; i++)
-                //{
-                //    Console.WriteLine(args[i]);
-                //}
-                ShiftExcel shiftExcel = new ShiftExcel(@Console.ReadLine(), patternMaster);
+                //ShiftExcel shiftExcel = new ShiftExcel(@Console.ReadLine(), patternMaster);
+                ShiftExcel shiftExcel = new ShiftExcel(@args[0], patternMaster);
                 shiftExcel.ReadShiftExcel();
 
                 //CSVファイルの作成
                 shiftExcel.CreateCsvFile();
+
+                Console.WriteLine("出力が完了しました。");
 
             }
             catch (Exception ex)
@@ -36,6 +43,7 @@ namespace OuttputShiftCSV
             }
             finally
             {
+                Console.WriteLine("終了するには、任意のキーを押下してください。");
                 Console.ReadLine();
             }
 
