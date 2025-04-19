@@ -80,7 +80,7 @@ namespace OuttputShiftCSV
         public void CreateCsvFile()
         {
             //ファイル名(出力場所はドラッグアンドドロップしたファイルと同じ場所)
-            string fileFullPath = DateTime.Now.ToString("yyyyMMddHHmmss") + "_shift.csv";
+            string fileFullPath = DateTime.Now.ToString("yyyy-MM-dd-HHmmss") + "_shift.csv";
 
             foreach (Employee employee in this.employeeList)
             {

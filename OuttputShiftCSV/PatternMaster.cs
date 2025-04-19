@@ -15,6 +15,7 @@ namespace OuttputShiftCSV
         const string FILE_NAME = "KOTスケジュールパターンリスト.xlsx";
         private XLWorkbook workBook;
         private List<ShiftPattern>shiftPatternList;
+        private Dictionary<string, List<string>> sameStartEndDic = new Dictionary<string, List<string>>();
 
         public PatternMaster()
         {
@@ -64,16 +65,33 @@ namespace OuttputShiftCSV
         /// シフトパターンの追加
         /// </summary>
         /// <param name="pattern"></param>
-        /// <remarks>TODO ここの挙動は変更可能性有</remarks>
+        /// <remarks>重複パターンは先勝ち。後から読み込まれたものは後続処理では使用しない</remarks>
         private void AddShiftPattern(ShiftPattern pattern)
         {
             //実際に使用されているパターンは、パターンコード違いで開始時間、終了時間が同じデータが存在するが、
-            //開始時間、終了時間の組み合わせが同じものは登録しない
-            ShiftPattern patterInList = shiftPatternList.Find(p => p.StartDateTime.ToString("HH:mm") == pattern.StartDateTime.ToString("HH:mm") &&
+            //開始時間、終了時間の組み合わせが同じものは登録しない。最初に読み込まれたものを後続の処理で使用する
+            ShiftPattern sameStartEndPattern = shiftPatternList.Find(p => p.StartDateTime.ToString("HH:mm") == pattern.StartDateTime.ToString("HH:mm") &&
                                                             p.EndDateTime.ToString("HH:mm") == pattern.EndDateTime.ToString("HH:mm"));
-            if(patterInList == null)
+            if(sameStartEndPattern == null)
             {
                 shiftPatternList.Add(pattern);
+            }
+            else
+            {
+                //重複したものは情報を保持する
+                string samePatternKey = sameStartEndPattern.StartDateTime.ToString("HH:mm") + "-" + sameStartEndPattern.EndDateTime.ToString("HH:mm");
+                List<string> samePatternList = new List<string>();
+                if (sameStartEndDic.Keys.Contains(samePatternKey))
+                {
+                    samePatternList = sameStartEndDic[samePatternKey];
+                    samePatternList.Add(pattern.PatternCode);
+                }
+                else
+                {
+                    samePatternList.Add(sameStartEndPattern.PatternCode);
+                    samePatternList.Add(pattern.PatternCode);
+                    sameStartEndDic.Add(samePatternKey, samePatternList);
+                }
             }
         }
 
@@ -91,6 +109,31 @@ namespace OuttputShiftCSV
             {
                 result = patterInList.PatternCode;
             }
+            return result;
+        }
+
+        /// <summary>
+        /// 出勤時刻と退勤時刻の重複のあったパターンコード情報を返却する
+        /// 重複が無ければ空のリストを返却
+        /// </summary>
+        /// <returns>重複のあったパターンコード情報</returns>
+        public List<string> GetSamePatternCodesInfomation()
+        {
+            List<string> result = new List<string>();
+            foreach (KeyValuePair<string, List<string>> samePattern in sameStartEndDic)
+            {
+                string samePatternCodes = "";
+                foreach (string patternCode in samePattern.Value)
+                {
+                    if (samePatternCodes != "")
+                    {
+                        samePatternCodes = samePatternCodes + ",";
+                    }
+                    samePatternCodes = samePatternCodes + patternCode;
+                }
+                result.Add(samePattern.Key + " - " + samePatternCodes);
+            }
+
             return result;
         }
     }
