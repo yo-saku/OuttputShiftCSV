@@ -126,7 +126,7 @@ namespace OuttputShiftCSV
 
             //各日程の勤務予定の確認
             int endDateColoumnNum = GetEndDateColoumnNum(sheet);
-            for (int k = START_COLUMN_NUM; k < endDateColoumnNum; k++)
+            for (int k = START_COLUMN_NUM; k <= endDateColoumnNum; k++)
             {
                 //開始、終了時刻の取得
                 string startDateStr = sheet.Cell(ronwNum, k).Value.ToString();
